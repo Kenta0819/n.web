@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>今日の音楽ページ（表示用）</title>
+  <style>
+    /* --- ここにCSSはindex.htmlからそのままコピーでOK --- */
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+    body { font-family: 'Montserrat', 'Meiryo', 'Segoe UI', sans-serif; background: linear-gradient(120deg, #232526 0%, #414345 100%); color: #fff; margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; letter-spacing: 0.04em;}
+    .section { width: 100%; max-width: 600px; margin: 40px auto; background: rgba(30,34,44,0.96); padding: 36px 28px 32px 28px; border-radius: 18px; box-shadow: 0 8px 32px #000a, 0 1.5px 0 #3a4e6a;}
+    .section-title { font-size: 1.4em; font-weight: bold; margin-bottom: 22px; letter-spacing: 0.12em; color: #6ec6ff; text-shadow: 0 2px 12px #000a; border-bottom: 2px solid #3a4e6a; padding-bottom: 8px; width: 100%; text-align: center;}
+    .music-section { margin-top: 24px; width: 100%; display: flex; flex-direction: column; align-items: center;}
+    .music-title { font-size: 1.25em; margin-bottom: 12px; text-align: center; color: #fff; text-shadow: 0 2px 8px #000a; letter-spacing: 0.08em; font-weight: 700;}
+    audio { width: 100%; margin-top: 10px; border-radius: 8px; background: #23272f; box-shadow: 0 2px 8px #000a;}
+    .news-section, .diary-section, .bbs-section { width: 100%; margin-top: 36px; background: #23272f; border-radius: 12px; padding: 18px 12px 12px 12px; box-shadow: 0 2px 8px #000a;}
+    .news-title, .diary-title, .bbs-title { font-size: 1.15em; font-weight: bold; margin-bottom: 10px; letter-spacing: 0.08em;}
+    .news-title { color: #ff8a65;}
+    .diary-title { color: #ffd54f;}
+    .bbs-title { color: #6ec6ff;}
+    .news-list, .diary-list, .bbs-list { list-style: none; padding: 0; margin: 0; max-height: 180px; overflow-y: auto;}
+    .news-item, .diary-item, .bbs-item { background: #444; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; word-break: break-all; box-shadow: 0 1px 4px #0005; display: flex; flex-direction: column; gap: 6px;}
+    .news-date { font-size: 0.85em; color: #ff8a65; text-align: right;}
+    .diary-date { font-size: 0.85em; color: #ffd54f; text-align: right;}
+    .news-text, .diary-text, .bbs-text { font-size: 1em; color: #fff;}
+    .bbs-photo { max-width: 100%; max-height: 180px; border-radius: 6px; margin-top: 4px; border: 1px solid #888; background: #222; object-fit: contain;}
+    .bbs-date { font-size: 0.85em; color: #b3e5fc; text-align: right;}
+  </style>
+</head>
+<body>
+  <div class="section">
+    <div class="section-title">閲覧用ページ</div>
+    <div class="music-section">
+      <div class="music-title" id="musicTitle">まだ音楽が登録されていません</div>
+      <audio id="audioPlayer" controls style="display:none;"></audio>
+    </div>
+    <div class="news-section">
+      <div class="news-title">お知らせ</div>
+      <ul class="news-list" id="newsList"></ul>
+    </div>
+    <div class="diary-section">
+      <div class="diary-title">日記</div>
+      <ul class="diary-list" id="diaryList"></ul>
+    </div>
+    <div class="bbs-section">
+      <div class="bbs-title">コメント掲示板</div>
+      <ul class="bbs-list" id="bbsList"></ul>
+    </div>
+  </div>
+  <script>
+    // 音楽
+    function loadMusic() {
+      const data = localStorage.getItem('musicData');
+      return data ? JSON.parse(data) : null;
+    }
+    function renderMusic() {
+      const music = loadMusic();
+      const musicTitle = document.getElementById('musicTitle');
+      const audioPlayer = document.getElementById('audioPlayer');
+      if (music && music.title && music.audio) {
+        musicTitle.textContent = music.title;
+        audioPlayer.src = music.audio;
+        audioPlayer.style.display = "block";
+      } else {
+        musicTitle.textContent = "まだ音楽が登録されていません";
+        audioPlayer.style.display = "none";
+      }
+    }
+    // お知らせ
+    function loadNews() {
+      const data = localStorage.getItem('newsPosts');
+      return data ? JSON.parse(data) : [];
+    }
+    function renderNews() {
+      const posts = loadNews();
+      const newsList = document.getElementById('newsList');
+      newsList.innerHTML = '';
+      posts.slice().reverse().forEach(post => {
+        const li = document.createElement('li');
+        li.className = 'news-item';
+        const textDiv = document.createElement('div');
+        textDiv.className = 'news-text';
+        textDiv.textContent = post.text;
+        li.appendChild(textDiv);
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'news-date';
+        dateDiv.textContent = post.date;
+        li.appendChild(dateDiv);
+        newsList.appendChild(li);
+      });
+    }
+    // 日記
+    function loadDiary() {
+      const data = localStorage.getItem('diaryPosts');
+      return data ? JSON.parse(data) : [];
+    }
+    function renderDiary() {
+      const posts = loadDiary();
+      const diaryList = document.getElementById('diaryList');
+      diaryList.innerHTML = '';
+      posts.slice().reverse().forEach(post => {
+        const li = document.createElement('li');
+        li.className = 'diary-item';
+        const textDiv = document.createElement('div');
+        textDiv.className = 'diary-text';
+        textDiv.textContent = post.text;
+        li.appendChild(textDiv);
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'diary-date';
+        dateDiv.textContent = post.date;
+        li.appendChild(dateDiv);
+        diaryList.appendChild(li);
+      });
+    }
+    // 掲示板
+    function loadBBS() {
+      const data = localStorage.getItem('bbsPosts');
+      return data ? JSON.parse(data) : [];
+    }
+    function renderBBS() {
+      const posts = loadBBS();
+      const bbsList = document.getElementById('bbsList');
+      bbsList.innerHTML = '';
+      posts.slice().reverse().forEach(post => {
+        const li = document.createElement('li');
+        li.className = 'bbs-item';
+        if (post.photo) {
+          const img = document.createElement('img');
+          img.src = post.photo;
+          img.className = 'bbs-photo';
+          li.appendChild(img);
+        }
+        const textDiv = document.createElement('div');
+        textDiv.className = 'bbs-text';
+        textDiv.textContent = (post.name ? post.name + '：' : '') + post.text;
+        li.appendChild(textDiv);
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'bbs-date';
+        dateDiv.textContent = post.date;
+        li.appendChild(dateDiv);
+        bbsList.appendChild(li);
+      });
+    }
+    // 初期表示
+    renderMusic();
+    renderNews();
+    renderDiary();
+    renderBBS();
+    // 1秒ごとに自動更新（他ページで操作された場合も反映）
+    setInterval(() => {
+      renderMusic();
+      renderNews();
+      renderDiary();
+      renderBBS();
+    }, 1000);
+  </script>
+</body>
+</html>
