@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>タロット占い</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Montserrat', 'Roboto', 'Meiryo', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #232526 0%, #414345 100%);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      letter-spacing: 0.03em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    h1 {
+      margin-top: 38px;
+      font-size: 2.7em;
+      letter-spacing: 0.12em;
+      color: #6ec6ff;
+      text-shadow: 0 2px 24px #000a, 0 0 8px #29b6f6;
+      font-family: 'Montserrat', 'Roboto', sans-serif;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0.18em;
+    }
+    .datetime-bar {
+      margin-top: 10px;
+      font-size: 1.1em;
+      color: #b3e5fc;
+      text-shadow: 0 2px 8px #000a;
+      letter-spacing: 0.08em;
+      text-align: center;
+    }
+    .tarot-area {
+      margin: 36px 0 0 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100vw;
+    }
+    .tarot-desc {
+      background: rgba(30, 34, 44, 0.92);
+      color: #6ec6ff;
+      border-radius: 14px;
+      padding: 18px 22px;
+      font-size: 1.08em;
+      margin-bottom: 32px;
+      max-width: 420px;
+      box-shadow: 0 2px 16px #0006;
+      text-align: center;
+      line-height: 1.7;
+      letter-spacing: 0.06em;
+    }
+    .card-row {
+      display: flex;
+      gap: 18px;
+      justify-content: center;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+    .tarot-card {
+      width: 100px;
+      height: 150px;
+      background: linear-gradient(135deg, #232526 60%, #3a4e6a 100%);
+      border-radius: 18px;
+      box-shadow: 0 4px 24px #000a, 0 1.5px 0 #29b6f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5em;
+      color: #29b6f6;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+      user-select: none;
+      border: 3px solid #263040;
+      overflow: hidden;
+      perspective: 800px;
+    }
+    .tarot-card:hover {
+      transform: scale(1.07) rotate(-2deg);
+      box-shadow: 0 8px 32px #29b6f688, 0 1.5px 0 #6ec6ff;
+      border: 3px solid #6ec6ff;
+      z-index: 2;
+    }
+    .tarot-card.selected {
+      border: 3px solid #ff8a65;
+      box-shadow: 0 8px 32px #ff8a6588, 0 1.5px 0 #6ec6ff;
+      background: linear-gradient(135deg, #ff8a65 60%, #6ec6ff 100%);
+      color: #fff;
+      transform: scale(1.12) rotate(1deg);
+      z-index: 3;
+    }
+    .tarot-card .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #263040 60%, #232526 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5em;
+      color: #6ec6ff;
+      z-index: 1;
+      transition: opacity 0.4s;
+      border: 2px solid #29b6f6;
+      box-shadow: 0 0 24px #29b6f644;
+      background-image:
+        url('data:image/svg+xml;utf8,<svg width="100" height="180" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="10" width="80" height="160" rx="18" fill="none" stroke="%236ec6ff" stroke-width="3"/><circle cx="50" cy="90" r="28" fill="none" stroke="%236ec6ff" stroke-width="2"/><circle cx="50" cy="90" r="10" fill="none" stroke="%236ec6ff" stroke-width="1.5"/></svg>');
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .tarot-card .front {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #fffde7 0%, #b3e5fc 100%);
+      color: #232526;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      font-size: 0.82em;
+      font-weight: bold;
+      padding: 6px 3px 3px 3px;
+      box-sizing: border-box;
+      opacity: 0;
+      z-index: 2;
+      transition: opacity 0.4s;
+      text-align: center;
+      letter-spacing: 0.04em;
+      text-shadow: 0 2px 8px #fff8;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .tarot-card.flipped .back {
+      opacity: 0;
+    }
+    .tarot-card.flipped .front {
+      opacity: 1;
+    }
+    .tarot-img {
+      width: 50px;
+      height: 65px;
+      object-fit: contain;
+      margin: 2px auto 2px auto;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px #0003;
+      background: #fff;
+      border: 1px solid #b3e5fc;
+      display: block;
+    }
+    .tarot-name {
+      font-size: 0.95em;
+      font-weight: bold;
+      color: #29b6f6;
+      margin-bottom: 1px;
+      text-shadow: 0 2px 8px #fff8;
+      word-break: break-all;
+      line-height: 1.1;
+    }
+    .tarot-meaning {
+      font-size: 0.85em;
+      color: #263040;
+      margin-bottom: 1px;
+      word-break: break-all;
+      line-height: 1.1;
+    }
+    .tarot-domain {
+      font-size: 0.75em;
+      color: #1976d2;
+      margin-top: 1px;
+      margin-bottom: 0;
+      word-break: break-all;
+      line-height: 1.1;
+    }
+    .result-area {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 1.15em;
+      color: #6ec6ff;
+      min-height: 60px;
+      letter-spacing: 0.08em;
+      text-shadow: 0 2px 8px #000a;
+      animation: fadein 1s;
+      background: rgba(30,34,44,0.92);
+      border-radius: 12px;
+      padding: 18px 12px;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 2px 16px #0006;
+      display: none;
+    }
+    .result-area.active {
+      display: block;
+    }
+    .result-emoji {
+      font-size: 2.2em;
+      margin-bottom: 4px;
+      display: block;
+      line-height: 1;
+    }
+    .result-emoji.good { color: #ffe082; }
+    .result-emoji.normal { color: #b3e5fc; }
+    .result-emoji.bad { color: #ff8a65; }
+    .result-img {
+      width: 120px;
+      height: 170px;
+      object-fit: contain;
+      margin: 0 auto 12px auto;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px #29b6f688;
+      background: #fff;
+      border: 2px solid #6ec6ff;
+      display: block;
+    }
+    .result-name {
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #6ec6ff;
+      margin-bottom: 4px;
+      text-shadow: 0 2px 8px #fff8;
+      word-break: break-all;
+    }
+    .result-meaning {
+      font-size: 1em;
+      color: #b3e5fc;
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+    .result-desc {
+      font-size: 0.98em;
+      color: #fff;
+      line-height: 1.7;
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+    .result-domain {
+      font-size: 0.95em;
+      color: #29b6f6;
+      margin-top: 2px;
+      margin-bottom: 0;
+      word-break: break-all;
+    }
+    .retry-btn {
+      margin-top: 32px;
+      padding: 10px 36px;
+      font-size: 1.1em;
+      border-radius: 8px;
+      border: none;
+      background: linear-gradient(90deg, #29b6f6 0%, #1976d2 100%);
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px #1976d288;
+      letter-spacing: 0.08em;
+      display: none;
+    }
+    .retry-btn.active {
+      display: block;
+    }
+    .retry-btn:hover {
+      background: linear-gradient(90deg, #1976d2 0%, #29b6f6 100%);
+      box-shadow: 0 4px 16px #1976d288;
+      color: #fff;
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(20px);}
+      to { opacity: 1; transform: none;}
+    }
+    @media (max-width: 900px) {
+      .card-row { gap: 10px; }
+      .tarot-card { width: 22vw; height: 33vw; min-width: 70px; min-height: 100px; }
+      .tarot-img, .result-img { width: 40px; height: 55px; }
+      .tarot-desc, .result-area { max-width: 95vw; }
+      .tarot-card .front { font-size: 0.75em; padding: 2px 1px 1px 1px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>タロット占い</h1>
+  <div class="datetime-bar" id="datetimeBar"></div>
+  <div class="tarot-area">
+    <div class="tarot-desc">
+      6枚のタロットカードから1枚を選んでください。<br>
+      選んだカードには、あなたへの今日のメッセージと解説が現れます。
+    </div>
+    <div class="card-row" id="cardRow"></div>
+    <div class="result-area" id="resultArea"></div>
+    <button class="retry-btn" id="retryBtn">もう一度占う</button>
+  </div>
+  <script>
+    // 日時表示
+    function updateDatetimeBar() {
+      const now = new Date();
+      const weekJP = ["日", "月", "火", "水", "木", "金", "土"];
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const h = String(now.getHours()).padStart(2, '0');
+      const min = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+      const w = weekJP[now.getDay()];
+      document.getElementById('datetimeBar').textContent = `${y}/${m}/${d} (${w}) ${h}:${min}:${s}`;
+    }
+    setInterval(updateDatetimeBar, 1000);
+    updateDatetimeBar();
+
+    // タロットカードデータ（バリエーション増強）
+    const tarotCards = [
+      { name: "愚者", meaning: "新しい始まり・自由", desc: "未知の世界へ飛び込む勇気が大切な日。冒険心を持って行動してみましょう。", domain: "恋愛・仕事・人生全般", img: "https://upload.wikimedia.org/wikipedia/commons/9/90/RWS_Tarot_00_Fool.jpg", effect: "good" },
+      { name: "魔術師", meaning: "創造力・意志", desc: "あなたのアイデアや行動力が現実を動かします。自信を持って進んで。", domain: "仕事・勉強・新しい挑戦", img: "https://upload.wikimedia.org/wikipedia/commons/d/de/RWS_Tarot_01_Magician.jpg", effect: "good" },
+      { name: "女教皇", meaning: "直感・知恵", desc: "心の声に耳を傾けて。静かな時間が大きなヒントをくれます。", domain: "人間関係・勉強・精神面", img: "https://upload.wikimedia.org/wikipedia/commons/8/88/RWS_Tarot_02_High_Priestess.jpg", effect: "normal" },
+      { name: "女帝", meaning: "豊かさ・成長", desc: "愛情や豊かさが広がる日。周囲に優しさを分けてあげて。", domain: "家庭・恋愛・人間関係", img: "https://upload.wikimedia.org/wikipedia/commons/d/d2/RWS_Tarot_03_Empress.jpg", effect: "good" },
+      { name: "皇帝", meaning: "安定・リーダーシップ", desc: "自分の信念を大切に。リーダーシップを発揮すると吉。", domain: "仕事・組織・目標達成", img: "https://upload.wikimedia.org/wikipedia/commons/c/c3/RWS_Tarot_04_Emperor.jpg", effect: "good" },
+      { name: "法王", meaning: "伝統・信頼", desc: "信頼できる人の助言が役立ちます。伝統やルールを大切に。", domain: "家庭・学校・組織", img: "https://upload.wikimedia.org/wikipedia/commons/8/8d/RWS_Tarot_05_Hierophant.jpg", effect: "normal" },
+      { name: "恋人", meaning: "選択・愛", desc: "大切な選択の時。心の声に従って決めましょう。", domain: "恋愛・人間関係・選択", img: "https://upload.wikimedia.org/wikipedia/commons/3/3a/TheLovers.jpg", effect: "good" },
+      { name: "戦車", meaning: "勝利・前進", desc: "勢いよく進むことで成功が近づきます。迷わず行動を。", domain: "仕事・勉強・スポーツ", img: "https://upload.wikimedia.org/wikipedia/commons/3/3b/RWS_Tarot_07_Chariot.jpg", effect: "good" },
+      { name: "力", meaning: "勇気・優しさ", desc: "困難も優しさと勇気で乗り越えられます。自分を信じて。", domain: "健康・人間関係・困難な状況", img: "https://upload.wikimedia.org/wikipedia/commons/f/f5/RWS_Tarot_08_Strength.jpg", effect: "good" },
+      { name: "隠者", meaning: "内省・探求", desc: "一人の時間が大切。自分自身と向き合うことで答えが見つかります。", domain: "精神面・勉強・人生の転機", img: "https://upload.wikimedia.org/wikipedia/commons/4/4d/RWS_Tarot_09_Hermit.jpg", effect: "normal" },
+      { name: "運命の輪", meaning: "転機・幸運", desc: "運気が大きく動く日。チャンスを逃さず掴んで。", domain: "全般・チャンス・転職", img: "https://upload.wikimedia.org/wikipedia/commons/3/3c/RWS_Tarot_10_Wheel_of_Fortune.jpg", effect: "good" },
+      { name: "正義", meaning: "公平・決断", desc: "バランスを大切に。冷静な判断が良い結果を生みます。", domain: "裁判・契約・人間関係", img: "https://upload.wikimedia.org/wikipedia/commons/c/c0/RWS_Tarot_11_Justice.jpg", effect: "normal" },
+      { name: "吊るされた男", meaning: "忍耐・視点転換", desc: "今は我慢の時。違う視点で物事を見ると新しい発見が。", domain: "困難な状況・精神面", img: "https://upload.wikimedia.org/wikipedia/commons/2/2b/RWS_Tarot_12_Hanged_Man.jpg", effect: "normal" },
+      { name: "死神", meaning: "終わりと始まり", desc: "何かが終わり、新しいことが始まります。変化を恐れず受け入れて。", domain: "転職・別れ・新しいスタート", img: "https://upload.wikimedia.org/wikipedia/commons/d/d7/RWS_Tarot_13_Death.jpg", effect: "bad" },
+      { name: "節制", meaning: "調和・癒し", desc: "無理せず自然体で。心身のバランスを整えましょう。", domain: "健康・人間関係・生活習慣", img: "https://upload.wikimedia.org/wikipedia/commons/f/f8/RWS_Tarot_14_Temperance.jpg", effect: "good" },
+      { name: "悪魔", meaning: "誘惑・束縛", desc: "誘惑に注意。自分を律することで運気が上がります。", domain: "恋愛・金銭・依存", img: "https://upload.wikimedia.org/wikipedia/commons/5/55/RWS_Tarot_15_Devil.jpg", effect: "bad" },
+      { name: "塔", meaning: "崩壊・目覚め", desc: "予想外の出来事があるかも。ピンチはチャンスに変わります。", domain: "仕事・人間関係・トラブル", img: "https://upload.wikimedia.org/wikipedia/commons/5/53/RWS_Tarot_16_Tower.jpg", effect: "bad" },
+      { name: "星", meaning: "希望・癒し", desc: "希望を持って進みましょう。癒しの時間が心を満たします。", domain: "恋愛・夢・癒し", img: "https://upload.wikimedia.org/wikipedia/commons/d/db/RWS_Tarot_17_Star.jpg", effect: "good" },
+      { name: "月", meaning: "不安・直感", desc: "不安を感じやすい日。直感を信じて行動すると吉。", domain: "精神面・恋愛・迷い", img: "https://upload.wikimedia.org/wikipedia/commons/7/7f/RWS_Tarot_18_Moon.jpg", effect: "bad" },
+      { name: "太陽", meaning: "成功・喜び", desc: "明るい未来が待っています。自信を持って進みましょう。", domain: "全般・成功・人間関係", img: "https://upload.wikimedia.org/wikipedia/commons/1/17/RWS_Tarot_19_Sun.jpg", effect: "good" },
+      { name: "審判", meaning: "再生・許し", desc: "過去を手放し、新しい自分に生まれ変わる時です。", domain: "復縁・再出発・人生の転機", img: "https://upload.wikimedia.org/wikipedia/commons/d/dd/RWS_Tarot_20_Judgement.jpg", effect: "normal" },
+      { name: "世界", meaning: "完成・達成", desc: "努力が実を結びます。達成感を味わえる日。", domain: "全般・目標達成・結婚", img: "https://upload.wikimedia.org/wikipedia/commons/f/ff/RWS_Tarot_21_World.jpg", effect: "good" },
+      // バリエーション追加例
+      { name: "希望の光", meaning: "希望・再生", desc: "暗闇の中にも必ず光が差し込みます。前向きな気持ちを忘れずに。", domain: "精神面・新しい挑戦", img: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=400&h=600", effect: "good" },
+      { name: "迷い道", meaning: "迷い・選択", desc: "今は決断を急がず、じっくり考えることが大切です。", domain: "進路・恋愛・仕事", img: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=facearea&w=400&h=600", effect: "normal" },
+      { name: "友情の絆", meaning: "友情・支え", desc: "友人との絆があなたを支えてくれます。感謝の気持ちを伝えてみて。", domain: "友人関係・人間関係", img: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=facearea&w=400&h=600", effect: "good" },
+      { name: "金運上昇", meaning: "金運・豊かさ", desc: "思わぬ収入やプレゼントがあるかも。感謝を忘れずに。", domain: "金運・仕事", img: "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=facearea&w=400&h=600", effect: "good" },
+      { name: "健康注意", meaning: "健康・注意", desc: "体調管理をしっかりと。無理せず休息をとりましょう。", domain: "健康・生活習慣", img: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=facearea&w=400&h=600", effect: "bad" },
+      { name: "新しい出会い", meaning: "出会い・発見", desc: "新しい人や出来事との出会いがあなたを成長させます。", domain: "恋愛・仕事・趣味", img: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=facearea&w=400&h=600", effect: "good" },
+      { name: "休息の必要", meaning: "休息・癒し", desc: "今日は無理せず、ゆっくり休むことが大切です。", domain: "健康・精神面", img: "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=facearea&w=400&h=600", effect: "normal" },
+      { name: "挑戦の時", meaning: "挑戦・成長", desc: "困難に立ち向かうことで大きく成長できます。", domain: "仕事・勉強・スポーツ", img: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=facearea&w=400&h=600", effect: "good" },
+      { name: "直感が冴える", meaning: "直感・ひらめき", desc: "ひらめきに従って行動すると良い結果に。", domain: "仕事・勉強・創作", img: "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=facearea&w=400&h=600", effect: "good" },
+      { name: "家族運", meaning: "家族・安心", desc: "家族との時間を大切に。安心できる日です。", domain: "家族・家庭", img: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=facearea&w=400&h=600", effect: "good" }
+    ];
+
+    // 6枚のカードをランダムに生成
+    function getRandomCards() {
+      const arr = [];
+      const used = new Set();
+      while (arr.length < 6) {
+        const idx = Math.floor(Math.random() * tarotCards.length);
+        if (!used.has(idx)) {
+          used.add(idx);
+          arr.push(tarotCards[idx]);
+        }
+      }
+      return arr;
+    }
+
+    let cards = [];
+    let selected = false;
+
+    function getEffectEmoji(effect) {
+      if (effect === "good") return '<span class="result-emoji good" title="良い影響">😊 良い</span>';
+      if (effect === "normal") return '<span class="result-emoji normal" title="普通">😐 普通</span>';
+      if (effect === "bad") return '<span class="result-emoji bad" title="良くない">😢 良くない</span>';
+      return '';
+    }
+
+    function renderCards() {
+      const row = document.getElementById('cardRow');
+      row.innerHTML = '';
+      cards.forEach((card, idx) => {
+        const div = document.createElement('div');
+        div.className = 'tarot-card';
+        div.innerHTML = `
+          <div class="back"></div>
+          <div class="front">
+            <img class="tarot-img" src="${card.img}" alt="${card.name}" />
+            <div class="tarot-name">${card.name}</div>
+            <div class="tarot-meaning">${card.meaning}</div>
+            <div class="tarot-domain">${card.domain}</div>
+          </div>
+        `;
+        div.onclick = () => {
+          if (selected) return;
+          selected = true;
+          document.querySelectorAll('.tarot-card').forEach((el, i) => {
+            if (i === idx) {
+              el.classList.add('flipped', 'selected');
+            } else {
+              el.classList.add('flipped');
+              el.style.opacity = "0.5";
+            }
+          });
+          showResult(card);
+        };
+        row.appendChild(div);
+      });
+    }
+
+    function showResult(card) {
+      document.getElementById('resultArea').innerHTML =
+        `${getEffectEmoji(card.effect)}
+         <img class="result-img" src="${card.img}" alt="${card.name}">
+         <div class="result-name">${card.name}</div>
+         <div class="result-meaning">${card.meaning}</div>
+         <div class="result-desc">${card.desc}</div>
+         <div class="result-domain">影響が出やすい分野：${card.domain}</div>`;
+      document.getElementById('resultArea').classList.add('active');
+      document.getElementById('retryBtn').classList.add('active');
+    }
+
+    function resetTarot() {
+      selected = false;
+      cards = getRandomCards();
+      document.getElementById('resultArea').innerHTML = '';
+      document.getElementById('resultArea').classList.remove('active');
+      document.getElementById('retryBtn').classList.remove('active');
+      renderCards();
+    }
+
+    window.onload = function() {
+      document.getElementById('retryBtn').onclick = resetTarot;
+      resetTarot();
+    };
+  </script>
+</body>
+</html>
