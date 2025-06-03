@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ローカル掲示板</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Montserrat', 'Roboto', 'Meiryo', 'Segoe UI', sans-serif;
+      background: radial-gradient(ellipse at 60% 20%, #232526 60%, #1a1a1a 100%);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      letter-spacing: 0.03em;
+    }
+    .main-flex {
+      display: flex;
+      align-items: flex-start;
+      max-width: 950px;
+      margin: 48px auto 0 auto;
+      box-shadow: 0 8px 40px #000a, 0 1.5px 0 #3a4e6a;
+      border-radius: 22px;
+      background: rgba(30,34,44,0.98);
+    }
+    .view-counter-bar {
+      min-width: 90px;
+      max-width: 110px;
+      background: linear-gradient(120deg, #232526 0%, #3a4e6a 100%);
+      border-radius: 22px 0 0 22px;
+      box-shadow: 0 8px 32px #000a, 0 1.5px 0 #3a4e6a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 38px 0 38px 0;
+      margin-right: 0;
+      height: 100%;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      border-right: 2px solid #263040;
+    }
+    .view-counter-label {
+      font-size: 1.08em;
+      color: #ffe082;
+      margin-bottom: 10px;
+      letter-spacing: 0.08em;
+      text-shadow: 0 2px 8px #000a;
+    }
+    .view-counter-num {
+      font-size: 2.5em;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 0 2px 12px #000a;
+      margin-bottom: 8px;
+      letter-spacing: 0.08em;
+    }
+    .container {
+      flex: 1 1 0;
+      background: rgba(30,34,44,0.98);
+      border-radius: 0 22px 22px 0;
+      box-shadow: none;
+      padding: 38px 32px 38px 32px;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    h1 {
+      text-align: center;
+      color: #6ec6ff;
+      margin-bottom: 10px;
+      font-size: 2.5em;
+      letter-spacing: 0.12em;
+      text-shadow: 0 2px 16px #000a;
+      font-family: 'Montserrat', 'Roboto', sans-serif;
+      font-weight: 700;
+      position: relative;
+    }
+    .birthday-deco {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 10px;
+      margin-top: -10px;
+      animation: birthdayPop 1.2s;
+    }
+    .birthday-text {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #ffe082;
+      text-shadow: 0 2px 12px #ffeb3b88;
+      letter-spacing: 0.12em;
+      background: linear-gradient(90deg, #ffe082 0%, #ff8a65 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .birthday-emoji {
+      font-size: 2em;
+      filter: drop-shadow(0 2px 8px #ffeb3b88);
+      animation: spin 2s linear infinite;
+    }
+    @keyframes birthdayPop {
+      0% { transform: scale(0.7); opacity: 0;}
+      60% { transform: scale(1.15);}
+      100% { transform: scale(1); opacity: 1;}
+    }
+    @keyframes spin {
+      0% { transform: rotate(-10deg);}
+      50% { transform: rotate(10deg);}
+      100% { transform: rotate(-10deg);}
+    }
+    .refresh-btn {
+      display: block;
+      margin: 0 auto 10px auto;
+      padding: 8px 32px;
+      font-size: 1.1em;
+      border-radius: 8px;
+      border: none;
+      background: linear-gradient(90deg, #29b6f6 0%, #1976d2 100%);
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px #1976d288;
+      letter-spacing: 0.08em;
+    }
+    .refresh-btn:hover {
+      background: linear-gradient(90deg, #1976d2 0%, #29b6f6 100%);
+      box-shadow: 0 4px 16px #1976d288;
+    }
+    .datetime-bar {
+      text-align: center;
+      font-size: 2em;
+      color: #ffe082;
+      margin-bottom: 6px;
+      font-weight: bold;
+      letter-spacing: 0.12em;
+      text-shadow: 0 2px 8px #000a;
+      font-family: 'Montserrat', 'Roboto', sans-serif;
+    }
+    .weather-bar {
+      text-align: center;
+      margin-bottom: 8px;
+      color: #b3e5fc;
+      font-size: 1.3em;
+      font-weight: bold;
+      letter-spacing: 0.08em;
+      text-shadow: 0 2px 8px #000a;
+    }
+    .emergency-section {
+      background: linear-gradient(90deg, #ff1744 0%, #ff8a65 100%);
+      color: #fff;
+      border-radius: 12px;
+      padding: 14px 22px;
+      font-size: 1.18em;
+      font-weight: bold;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 12px #ff174488;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+      letter-spacing: 0.08em;
+    }
+    .emergency-icon {
+      font-size: 1.3em;
+      margin-right: 8px;
+    }
+    .fortune-section {
+      background: linear-gradient(90deg, #6ec6ff 0%, #b3e5fc 100%);
+      color: #232526;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 1.1em;
+      font-weight: bold;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 12px #6ec6ff88;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+    }
+    .fortune-btn {
+      margin-left: 18px;
+      background: #1976d2;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 18px;
+      font-size: 1em;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+      box-shadow: 0 2px 8px #1976d288;
+    }
+    .fortune-btn:hover {
+      background: #29b6f6;
+    }
+    .tab-bar {
+      display: flex;
+      justify-content: center;
+      margin: 18px 0 10px 0;
+      gap: 0;
+      border-bottom: 2px solid #3a4e6a;
+      background: #222b;
+      border-radius: 10px 10px 0 0;
+      overflow: hidden;
+    }
+    .tab-btn {
+      flex: 1 1 0;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.15em;
+      font-weight: bold;
+      padding: 14px 0 12px 0;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      transition: background 0.2s, color 0.2s;
+      border-bottom: 3px solid transparent;
+    }
+    .tab-btn.active {
+      background: #263040;
+      color: #6ec6ff;
+      border-bottom: 3px solid #6ec6ff;
+    }
+    .tab-content {
+      display: none;
+      background: #23272f;
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 2px 8px #000a;
+      padding: 18px 12px 12px 12px;
+      margin-bottom: 18px;
+      margin-top: 0;
+      min-height: 80px;
+    }
+    .tab-content.active {
+      display: block;
+      animation: fadein 0.5s;
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(20px);}
+      to { opacity: 1; transform: none;}
+    }
+    .news-title {
+      font-size: 1.15em;
+      font-weight: bold;
+      margin-bottom: 10px;
+      letter-spacing: 0.08em;
+      color: #ff8a65;
+    }
+    .news-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .news-item {
+      background: #444;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      word-break: break-all;
+      box-shadow: 0 1px 4px #0005;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      animation: fadein 0.5s;
+    }
+    .news-date { font-size: 0.85em; color: #ff8a65; text-align: right; }
+    .news-text { font-size: 1em; color: #fff; }
+    .news-photo {
+      max-width: 100%;
+      max-height: 120px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      border: 1px solid #888;
+      background: #222;
+      object-fit: contain;
+    }
+    .music-title {
+      font-size: 1.25em;
+      margin-bottom: 12px;
+      text-align: center;
+      color: #fff;
+      text-shadow: 0 2px 8px #000a;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+    audio {
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 8px;
+      background: #23272f;
+      box-shadow: 0 2px 8px #000a;
+    }
+    .user-id-bar {
+      width: 100%;
+      text-align: center;
+      margin: 10px 0 18px 0;
+      font-size: 1em;
+      color: #b3e5fc;
+      letter-spacing: 0.08em;
+    }
+    @media (max-width: 900px) {
+      .main-flex {
+        flex-direction: column;
+        max-width: 100vw;
+        border-radius: 0;
+      }
+      .view-counter-bar {
+        flex-direction: row;
+        min-width: 100%;
+        max-width: 100%;
+        border-radius: 22px 22px 0 0;
+        padding: 16px 0 8px 0;
+        margin-bottom: 0;
+        margin-right: 0;
+        justify-content: center;
+        position: static;
+        border-right: none;
+        border-bottom: 2px solid #263040;
+      }
+      .container {
+        border-radius: 0 0 22px 22px;
+        box-shadow: none;
+        padding: 18px 4vw 24px 4vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-flex">
+    <div class="view-counter-bar">
+      <div class="view-counter-label">閲覧回数</div>
+      <div class="view-counter-num" id="viewCount">0</div>
+    </div>
+    <div class="container">
+      <h1 id="mainTitle">ローカル掲示板</h1>
+      <div id="birthdayDeco"></div>
+      <button class="refresh-btn" onclick="manualRefresh()">更新</button>
+      <div class="datetime-bar" id="datetimeBar">--:--:-- (--)</div>
+      <div class="weather-bar" id="weatherBar">天気取得中...</div>
+      <div class="emergency-section" id="emergencySection">
+        <span class="emergency-icon">🚨</span>
+        <span id="emergencyText">重要なお知らせはありません</span>
+      </div>
+      <div class="fortune-section">
+        <span id="fortuneResult">今日の運勢をチェック！</span>
+        <button class="fortune-btn" onclick="showFortune()">占う</button>
+      </div>
+      <div class="tab-bar">
+        <button class="tab-btn active" id="newsTabBtn">お知らせ</button>
+        <button class="tab-btn" id="musicTabBtn">音楽</button>
+      </div>
+      <div class="tab-content active" id="newsTab">
+        <div class="news-title">お知らせ</div>
+        <ul class="news-list" id="newsList"></ul>
+      </div>
+      <div class="tab-content" id="musicTab">
+        <div class="music-title" id="musicTitle">今日の音楽はまだ登録されていません</div>
+        <audio id="audioPlayer" controls style="display:none;"></audio>
+      </div>
+      <div class="user-id-bar">
+        あなたのID：<span id="userId"></span>
+      </div>
+    </div>
+  </div>
+  <script>
+    // 閲覧回数カウント
+    function updateViewCount() {
+      let count = Number(localStorage.getItem('bbsViewCount') || '0');
+      count++;
+      localStorage.setItem('bbsViewCount', count);
+      document.getElementById('viewCount').textContent = count;
+    }
+    updateViewCount();
+
+    // 日時表示 & 誕生日装飾
+    function updateDatetimeBar() {
+      const now = new Date();
+      const weekJP = ["日", "月", "火", "水", "木", "金", "土"];
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const h = String(now.getHours()).padStart(2, '0');
+      const min = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+      const w = weekJP[now.getDay()];
+      document.getElementById('datetimeBar').textContent = `${y}/${m}/${d} (${w}) ${h}:${min}:${s}`;
+      showBirthdayDeco(m, d);
+    }
+    setInterval(updateDatetimeBar, 1000);
+    updateDatetimeBar();
+
+    // 誕生日装飾
+    function showBirthdayDeco(mm, dd) {
+      const deco = document.getElementById('birthdayDeco');
+      if ((mm === "07" && dd === "14") || (mm === "08" && dd === "19")) {
+        deco.innerHTML = `
+          <div class="birthday-deco">
+            <span class="birthday-emoji">🎉</span>
+            <span class="birthday-text">今日は誕生日！おめでとうございます！</span>
+            <span class="birthday-emoji">🎂</span>
+          </div>
+        `;
+      } else {
+        deco.innerHTML = "";
+      }
+    }
+
+    // 位置情報から天気取得
+    function updateWeatherWithGeo() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            fetchWeather(lat, lon);
+          },
+          err => {
+            fetchWeather(35.68, 139.76);
+          }
+        );
+      } else {
+        fetchWeather(35.68, 139.76);
+      }
+    }
+    function fetchWeather(lat, lon) {
+      const weatherEl = document.getElementById('weatherBar');
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=Asia%2FTokyo`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.current_weather) {
+            const temp = data.current_weather.temperature;
+            const code = data.current_weather.weathercode;
+            const icons = {
+              0: "☀️", 1: "🌤️", 2: "⛅", 3: "☁️", 45: "🌫️", 48: "🌫️", 51: "🌦️", 53: "🌦️", 55: "🌦️", 56: "🌧️", 57: "🌧️", 61: "🌦️", 63: "🌦️", 65: "🌧️", 66: "🌧️", 67: "🌧️", 71: "🌨️", 73: "🌨️", 75: "❄️", 77: "❄️", 80: "🌦️", 81: "🌦️", 82: "🌧️", 85: "🌨️", 86: "🌨️", 95: "⛈️", 96: "⛈️", 99: "⛈️"
+            };
+            const icon = icons[code] || "";
+            weatherEl.textContent = `天気: ${icon} ${temp}℃`;
+          } else {
+            weatherEl.textContent = "天気取得失敗";
+          }
+        })
+        .catch(() => {
+          weatherEl.textContent = "天気取得失敗";
+        });
+    }
+    updateWeatherWithGeo();
+    setInterval(updateWeatherWithGeo, 10 * 60 * 1000);
+
+    // タブ切替
+    const newsTabBtn = document.getElementById('newsTabBtn');
+    const musicTabBtn = document.getElementById('musicTabBtn');
+    const newsTab = document.getElementById('newsTab');
+    const musicTab = document.getElementById('musicTab');
+    newsTabBtn.onclick = () => {
+      newsTabBtn.classList.add('active');
+      musicTabBtn.classList.remove('active');
+      newsTab.classList.add('active');
+      musicTab.classList.remove('active');
+    };
+    musicTabBtn.onclick = () => {
+      musicTabBtn.classList.add('active');
+      newsTabBtn.classList.remove('active');
+      musicTab.classList.add('active');
+      newsTab.classList.remove('active');
+      renderMusic();
+    };
+
+    // お知らせ
+    function loadNews() {
+      const data = localStorage.getItem('newsPosts');
+      return data ? JSON.parse(data) : [];
+    }
+    function renderNews() {
+      const posts = loadNews();
+      const newsList = document.getElementById('newsList');
+      newsList.innerHTML = '';
+      posts.slice().reverse().forEach(post => {
+        const li = document.createElement('li');
+        li.className = 'news-item';
+        if (post.photo) {
+          const img = document.createElement('img');
+          img.src = post.photo;
+          img.className = 'news-photo';
+          li.appendChild(img);
+        }
+        const textDiv = document.createElement('div');
+        textDiv.className = 'news-text';
+        textDiv.textContent = post.text;
+        li.appendChild(textDiv);
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'news-date';
+        dateDiv.textContent = post.date;
+        li.appendChild(dateDiv);
+        newsList.appendChild(li);
+      });
+    }
+
+    // 音楽
+    function loadMusic() {
+      const data = localStorage.getItem('musicData');
+      return data ? JSON.parse(data) : null;
+    }
+    function renderMusic() {
+      const music = loadMusic();
+      const musicTitle = document.getElementById('musicTitle');
+      const audioPlayer = document.getElementById('audioPlayer');
+      if (music && music.title && music.audio) {
+        musicTitle.textContent = music.title;
+        if (audioPlayer.src !== music.audio) {
+          audioPlayer.pause();
+          audioPlayer.src = music.audio;
+        }
+        audioPlayer.style.display = "block";
+      } else {
+        musicTitle.textContent = "今日の音楽はまだ登録されていません";
+        audioPlayer.style.display = "none";
+        audioPlayer.src = "";
+      }
+    }
+
+    // 重要お知らせ
+    function loadEmergency() {
+      return localStorage.getItem('emergencyText') || "";
+    }
+    function renderEmergency() {
+      const text = loadEmergency();
+      document.getElementById('emergencyText').textContent = text ? text : "重要なお知らせはありません";
+    }
+
+    // 占い
+    function showFortune() {
+      const fortunes = [
+        "大吉：今日は最高の一日！",
+        "中吉：良いことがありそう！",
+        "小吉：ちょっと良い日になるかも",
+        "吉：平和な一日です",
+        "末吉：焦らずゆっくり進もう",
+        "凶：無理せず休憩を",
+        "大凶：今日は慎重に行動しましょう",
+        "恋愛運：新しい出会いがあるかも",
+        "金運：財布の紐は固く",
+        "健康運：体調管理をしっかり",
+        "仕事運：努力が実を結ぶ日",
+        "勉強運：集中力アップ！"
+      ];
+      const idx = Math.floor(Math.random() * fortunes.length);
+      document.getElementById('fortuneResult').textContent = fortunes[idx];
+    }
+
+    // ユーザーID生成
+    function getOrCreateUserId() {
+      let id = localStorage.getItem('bbs_user_id');
+      if (!id) {
+        id = 'U' + Math.random().toString(36).slice(2, 10).toUpperCase();
+        localStorage.setItem('bbs_user_id', id);
+      }
+      return id;
+    }
+    const myUserId = getOrCreateUserId();
+    document.getElementById('userId').textContent = myUserId;
+
+    // 更新ボタン用関数
+    function manualRefresh() {
+      renderNews();
+      renderEmergency();
+      renderMusic();
+      document.getElementById('viewCount').textContent = localStorage.getItem('bbsViewCount') || '0';
+      updateWeatherWithGeo();
+      updateDatetimeBar();
+    }
+
+    // ローカルストレージ監視（他タブ連携）
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'newsPosts' || e.key === 'emergencyText' || e.key === 'musicData' || e.key === 'bbsViewCount') {
+        renderNews();
+        renderEmergency();
+        renderMusic();
+        if (e.key === 'bbsViewCount') {
+          document.getElementById('viewCount').textContent = localStorage.getItem('bbsViewCount') || '0';
+        }
+        if (e.key === 'musicData') {
+          renderMusic();
+        }
+      }
+    });
+
+    // 1秒ごとにお知らせ・緊急・音楽・閲覧回数を自動更新
+    setInterval(() => {
+      renderNews();
+      renderEmergency();
+      renderMusic();
+      document.getElementById('viewCount').textContent = localStorage.getItem('bbsViewCount') || '0';
+    }, 1000);
+
+    // 初期表示
+    renderNews();
+    renderEmergency();
+    renderMusic();
+    document.getElementById('viewCount').textContent = localStorage.getItem('bbsViewCount') || '0';
+  </script>
+</body>
+</html>
