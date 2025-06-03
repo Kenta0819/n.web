@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>今日の音楽ページ</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+    body {
+      font-family: 'Montserrat', 'Meiryo', 'Segoe UI', sans-serif;
+      background: linear-gradient(120deg, #232526 0%, #414345 100%);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: center;
+      letter-spacing: 0.04em;
+    }
+    .section {
+      flex: 1;
+      min-width: 340px;
+      max-width: 520px;
+      margin: 48px 20px;
+      background: rgba(30,34,44,0.96);
+      padding: 36px 28px 32px 28px;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px #000a, 0 1.5px 0 #3a4e6a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    .section-title {
+      font-size: 1.4em;
+      font-weight: bold;
+      margin-bottom: 22px;
+      letter-spacing: 0.12em;
+      color: #6ec6ff;
+      text-shadow: 0 2px 12px #000a;
+      border-bottom: 2px solid #3a4e6a;
+      padding-bottom: 8px;
+      width: 100%;
+      text-align: center;
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 2.2em;
+      letter-spacing: 0.1em;
+    }
+    .music-section {
+      margin-top: 24px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .music-title {
+      font-size: 1.25em;
+      margin-bottom: 12px;
+      text-align: center;
+      color: #fff;
+      text-shadow: 0 2px 8px #000a;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+    .update-section {
+      margin-top: 32px;
+      border-top: 1px solid #444;
+      padding-top: 18px;
+      width: 100%;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #b3e5fc;
+      font-size: 1em;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+    }
+    input[type="file"], input[type="text"], textarea {
+      margin-bottom: 14px;
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 1.08em;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1.5px solid #6ec6ff;
+      background: #23272f;
+      color: #fff;
+      outline: none;
+      transition: border 0.2s;
+    }
+    input[type="file"]:focus, input[type="text"]:focus, textarea:focus {
+      border: 1.5px solid #29b6f6;
+      background: #263040;
+    }
+    button {
+      font-size: 1.08em;
+      padding: 10px 32px;
+      border-radius: 8px;
+      border: none;
+      background: linear-gradient(90deg, #29b6f6 0%, #1976d2 100%);
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #1976d2a0;
+      transition: background 0.2s, box-shadow 0.2s;
+      margin-top: 8px;
+      letter-spacing: 0.08em;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #1976d2 0%, #29b6f6 100%);
+      box-shadow: 0 4px 16px #1976d2a0;
+    }
+    audio {
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 8px;
+      background: #23272f;
+      box-shadow: 0 2px 8px #000a;
+    }
+    .preview-section {
+      margin-top: 24px;
+      width: 100%;
+      text-align: center;
+    }
+    .preview-title {
+      font-size: 1.08em;
+      color: #b3e5fc;
+      margin-bottom: 8px;
+      letter-spacing: 0.06em;
+      text-shadow: 0 2px 8px #000a;
+    }
+    /* コメント掲示板 */
+    .bbs-section {
+      width: 100%;
+      margin-top: 40px;
+      background: #23272f;
+      border-radius: 12px;
+      padding: 18px 12px 12px 12px;
+      box-shadow: 0 2px 8px #000a;
+    }
+    .bbs-title {
+      font-size: 1.15em;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #6ec6ff;
+      letter-spacing: 0.08em;
+    }
+    .bbs-form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .bbs-form input[type="text"], .bbs-form textarea {
+      width: 100%;
+      font-size: 1em;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #888;
+      background: #333;
+      color: #fff;
+      resize: vertical;
+    }
+    .bbs-form input[type="file"] {
+      color: #fff;
+      margin-bottom: 0;
+    }
+    .bbs-form button {
+      align-self: flex-end;
+      padding: 6px 18px;
+      font-size: 1em;
+      border-radius: 6px;
+      border: none;
+      background: #1976d2;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .bbs-form button:hover {
+      background: #29b6f6;
+    }
+    .bbs-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .bbs-item {
+      background: #444;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      word-break: break-all;
+      box-shadow: 0 1px 4px #0005;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .bbs-photo {
+      max-width: 100%;
+      max-height: 180px;
+      border-radius: 6px;
+      margin-top: 4px;
+      border: 1px solid #888;
+      background: #222;
+      object-fit: contain;
+    }
+    .bbs-text {
+      font-size: 1em;
+      color: #fff;
+    }
+    .bbs-date {
+      font-size: 0.85em;
+      color: #b3e5fc;
+      text-align: right;
+    }
+    /* 日記・お知らせ */
+    .diary-section, .news-section {
+      width: 100%;
+      margin-top: 36px;
+      background: #23272f;
+      border-radius: 12px;
+      padding: 18px 12px 12px 12px;
+      box-shadow: 0 2px 8px #000a;
+    }
+    .diary-title, .news-title {
+      font-size: 1.15em;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #ffd54f;
+      letter-spacing: 0.08em;
+    }
+    .news-title {
+      color: #ff8a65;
+    }
+    .diary-form, .news-form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .diary-form textarea, .news-form textarea {
+      width: 100%;
+      font-size: 1em;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #888;
+      background: #333;
+      color: #fff;
+      resize: vertical;
+    }
+    .diary-form button, .news-form button {
+      align-self: flex-end;
+      padding: 6px 18px;
+      font-size: 1em;
+      border-radius: 6px;
+      border: none;
+      background: #ffd54f;
+      color: #222;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .diary-form button:hover {
+      background: #ffe082;
+    }
+    .news-form button {
+      background: #ff8a65;
+      color: #fff;
+    }
+    .news-form button:hover {
+      background: #ffab91;
+    }
+    .diary-list, .news-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .diary-item, .news-item {
+      background: #444;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      word-break: break-all;
+      box-shadow: 0 1px 4px #0005;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .diary-date, .news-date {
+      font-size: 0.85em;
+      color: #ffd54f;
+      text-align: right;
+    }
+    .news-date {
+      color: #ff8a65;
+    }
+    .diary-text, .news-text {
+      font-size: 1em;
+      color: #fff;
+    }
+    /* スクロールバー */
+    ::-webkit-scrollbar {
+      width: 8px;
+      background: #23272f;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #444;
+      border-radius: 4px;
+    }
+    /* アニメーション */
+    .section {
+      animation: fadein 1s;
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(40px);}
+      to { opacity: 1; transform: none;}
+    }
+  </style>
+</head>
+<body>
+  <!-- 閲覧側 -->
+  <div class="section" id="viewerSection">
+    <div class="section-title">閲覧側（プレビュー）</div>
+    <div class="music-section" id="musicSection">
+      <div class="music-title" id="musicTitle">まだ音楽が登録されていません</div>
+      <audio id="audioPlayer" controls style="display:none;"></audio>
+    </div>
+    <!-- お知らせ欄 -->
+    <div class="news-section">
+      <div class="news-title">お知らせ</div>
+      <ul class="news-list" id="newsList"></ul>
+    </div>
+    <!-- 日記欄 -->
+    <div class="diary-section">
+      <div class="diary-title">日記</div>
+      <ul class="diary-list" id="diaryList"></ul>
+    </div>
+    <!-- コメント掲示板 -->
+    <div class="bbs-section">
+      <div class="bbs-title">コメント掲示板</div>
+      <form class="bbs-form" id="bbsForm">
+        <input type="text" id="bbsName" placeholder="お名前（任意）">
+        <textarea id="bbsText" rows="2" placeholder="コメントを入力"></textarea>
+        <input type="file" id="bbsPhoto" accept="image/*">
+        <button type="submit">投稿</button>
+      </form>
+      <ul class="bbs-list" id="bbsList"></ul>
+    </div>
+  </div>
+  <!-- 操作側 -->
+  <div class="section" id="editorSection">
+    <div class="section-title">操作側（更新）</div>
+    <div class="update-section">
+      <form id="musicForm">
+        <label for="musicInput">今日の音楽ファイルを選択（MP3）:</label>
+        <input type="file" id="musicInput" accept="audio/mp3,audio/mpeg">
+        <label for="titleInput">タイトル:</label>
+        <input type="text" id="titleInput" placeholder="曲名やコメント">
+        <button type="submit">更新</button>
+      </form>
+    </div>
+    <div class="preview-section">
+      <div class="preview-title">↓ 閲覧側にリアルタイムで反映されます</div>
+    </div>
+    <!-- お知らせ投稿 -->
+    <div class="news-section">
+      <div class="news-title">お知らせ投稿</div>
+      <form class="news-form" id="newsForm">
+        <textarea id="newsText" rows="2" placeholder="お知らせ内容を入力"></textarea>
+        <button type="submit">お知らせ追加</button>
+      </form>
+    </div>
+    <!-- 日記投稿 -->
+    <div class="diary-section">
+      <div class="diary-title">日記投稿</div>
+      <form class="diary-form" id="diaryForm">
+        <textarea id="diaryText" rows="2" placeholder="日記内容を入力"></textarea>
+        <button type="submit">日記追加</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    // 音楽更新
+    const musicForm = document.getElementById('musicForm');
+    const musicInput = document.getElementById('musicInput');
+    const titleInput = document.getElementById('titleInput');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const musicTitle = document.getElementById('musicTitle');
+
+    musicForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const file = musicInput.files[0];
+      const title = titleInput.value || "今日の音楽";
+      if (!file) {
+        alert("音楽ファイルを選択してください。");
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      audioPlayer.src = url;
+      audioPlayer.style.display = "block";
+      musicTitle.textContent = title;
+    });
+
+    // コメント掲示板
+    const bbsForm = document.getElementById('bbsForm');
+    const bbsName = document.getElementById('bbsName');
+    const bbsText = document.getElementById('bbsText');
+    const bbsPhoto = document.getElementById('bbsPhoto');
+    const bbsList = document.getElementById('bbsList');
+
+    function saveBBS(posts) {
+      localStorage.setItem('bbsPosts', JSON.stringify(posts));
+    }
+    function loadBBS() {
+      const data = localStorage.getItem('bbsPosts');
+      return data ? JSON.parse(data) : [];
+    }
+    function renderBBS() {
+      const posts = loadBBS();
+      bbsList.innerHTML = '';
+      posts.slice().reverse().forEach(post => {
+        const li = document.createElement('li');
+        li.className = 'bbs-item';
+        if (post.photo) {
+          const img = document.createElement('img');
+          img.src = post.photo;
+          img.className = 'bbs-photo';
+          li.appendChild(img);
+        }
+        const textDiv = document.createElement('div');
+        textDiv.className = 'bbs-text';
+        textDiv.textContent = (post.name ? post.name + '：' : '') + post.text;
+        li.appendChild(textDiv);
+
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'bbs-date';
+        dateDiv.textContent = post.date;
+        li.appendChild(dateDiv);
+
+        bbsList.appendChild(li);
+      });
+    }
+    bbsForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = bbsName.value.trim();
+      const text = bbsText.value.trim();
+      if (!text) {
+        alert('コメントを入力してください。');
+        return;
+      }
+      const date = new Date().toLocaleString('ja-JP', { hour12: false });
+      const posts = loadBBS();
+      const file = bbsPhoto.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          posts.push({ name, text, photo: ev.target.result, date });
+          saveBBS(posts);
+          renderBBS();
+        };
+        reader.readAsDataURL(file);
+      } else {
+        posts.push({ name, text, photo: null, date });
+        saveBBS(posts);
+        renderBBS();
+      }
+      bbsForm.reset();
+    });
+
+    // 日記
+    const diaryForm = document.getElementById('diaryForm');
+    const diaryText = document.getElementById('diaryText');
+    const diaryList = document.getElementById('diaryList');
+    function saveDiary(posts) {
+      localStorage.setItem('diaryPosts', JSON.stringify(posts));
+    }
+    function loadDiary() {
+      const data = localStorage.getItem('diaryPosts');
+      return data ? JSON.parse(data) : [];
+    }
+    function renderDiary() {
+      const posts = loadDiary();
+      diaryList.innerHTML = '';
+      posts.slice().reverse().forEach(post => {
+        const li = document.createElement('li');
+        li.className = 'diary-item';
+        const textDiv = document.createElement('div');
+        textDiv.className = 'diary-text';
+        textDiv.textContent = post.text;
+        li.appendChild(textDiv);
+
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'diary-date';
+        dateDiv.textContent = post.date;
+        li.appendChild(dateDiv);
+
+        diaryList.appendChild(li);
+      });
+    }
+    diaryForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const text = diaryText.value.trim();
+      if (!text) {
+        alert('日記内容を入力してください。');
+        return;
+      }
+      const date = new Date().toLocaleString('ja-JP', { hour12: false });
+      const posts = loadDiary();
+      posts.push({ text, date });
+      saveDiary(posts);
+      renderDiary();
+      diaryForm.reset();
+    });
+
+    // お知らせ
+    const newsForm = document.getElementById('newsForm');
+    const newsText = document.getElementById('newsText');
+    const newsList = document.getElementById('newsList');
+    function saveNews(posts) {
+      localStorage.setItem('newsPosts', JSON.stringify(posts));
+    }
+    function loadNews() {
+      const data = localStorage.getItem('newsPosts');
+      return data ? JSON.parse(data) : [];
+    }
+    function renderNews() {
+      const posts = loadNews();
+      newsList.innerHTML = '';
+      posts.slice().reverse().forEach(post => {
+        const li = document.createElement('li');
+        li.className = 'news-item';
+        const textDiv = document.createElement('div');
+        textDiv.className = 'news-text';
+        textDiv.textContent = post.text;
+        li.appendChild(textDiv);
+
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'news-date';
+        dateDiv.textContent = post.date;
+        li.appendChild(dateDiv);
+
+        newsList.appendChild(li);
+      });
+    }
+    newsForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const text = newsText.value.trim();
+      if (!text) {
+        alert('お知らせ内容を入力してください。');
+        return;
+      }
+      const date = new Date().toLocaleString('ja-JP', { hour12: false });
+      const posts = loadNews();
+      posts.push({ text, date });
+      saveNews(posts);
+      renderNews();
+      newsForm.reset();
+    });
+
+    // 初期表示
+    renderBBS();
+    renderDiary();
+    renderNews();
+  </script>
+</body>
+</html>
